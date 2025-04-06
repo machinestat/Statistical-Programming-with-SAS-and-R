@@ -1,0 +1,219 @@
+---
+title: "Introduction to R"
+author: "Shu Guo"
+date: "Thursday, January 07, 2016"
+output:
+  pdf_document:
+    highlight: zenburn
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+  word_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Introduction to R
+
+R is a language and environment for statistical computing and graphics. It is a GNU project which is similar to the S language and environment which was developed at Bell Laboratories (formerly AT&T, now Lucent Technologies) by John Chambers and colleagues. R can be considered as a open source implementation of S. 
+
+R provides a wide variety of statistical and graphical techniques, and is highly extensible. One of R's strengths is the ease with which well-designed publication-quality plots can be produced, including mathematical symbols and formulae where needed. 
+
+R is available as Free Software under the terms of the Free Software Foundatio's GNU General Public License in source code form. It compiles and runs on a wide variety of UNIX platforms and similar systems (including FreeBSD and Linux), Windows and MacOS.
+
+# Installing R and RStudio
+
+In this section we will learn how to install R and RStudio, and some basic knowledge of R programming.
+
+## installing Base R
+
+We can go to the R Fundation website, https://www.r-project.org/, and choose one of the mirrors that close to you to download R.
+
+Since I am close to Toronto so I will choose Univeristy of Toronto and it will be faster to download. If you installed a LINUX distribution, most like the R will come with the system when you installing it, and you can select base installer for Mac or Windows.
+
+After installed R, the first time you opened R you will see a menu bar, a tool and R console. On the console you can see R version, license and other related information. The *>* sign on the bottom means that R is ready to accept commands here. You can type you code here or open a file to write/execute your code and save the code later.
+
+![R Console](data/console.png)
+
+## Installing RStudio
+
+This is the R GUI with limited functionality, and I would like to recomman a R IDE called RStudio. 
+You can go to the following webpage to download RStudio: https://www.rstudio.com/products/RStudio/, and then you can just install RStudio like any other software.
+
+The first time you open RStudio will be like this:
+
+![RStudio](data/RStudio.png)
+
+We can see there are four sections on the screen, the first section on the top left is the place that you can write your code, and the result will display on the console to the top right section. Other sections can have information for evironment, files, packages, history, ect. We can change the layout in Global Options -> pane layout, and we can also change Appearance and Version Control here.
+
+R CRAN (The Comprehensive R Archive Network) has more 10,000 R packages. use "install.package()" to install new packages.
+
+## Basics 
+
+```{r, echo = T, highlight=FALSE}
+# WE can use R as a calculator
+(10 + 5 - 3)*2
+
+# Assigning scalar variables using <-
+a <- 5*3
+print(a)
+
+# Create vectors using c()
+b <- c(3, 1, 6)
+print(b)
+c <- c("Monday", "Tuesday", "Wednesday")
+print(c)
+
+# Special numbers: 1. NaN, not-a-number 2. NA, not available
+sqrt(-2)
+b <- NA
+print(b)
+
+# finding help using ?, ?? or help(), help.search()
+# ?mean
+# ??plot
+```
+# Data Structure
+## Vector
+Vector is the basic data structure in R. There are two types of vectors in R: atomic vector and list or generic vector. They are all one dimentional data structure and atomic vector is homogenous while list is heterogeneous.
+
+### Atomic Vector
+There are four common atomic vectors in R: logic, integer, double(numeric), character, complex and raw, and we will discuss the first four types here. All elements in the same atomic vector must be in the same type. If different types of values were put in the same atomic vecotr, then the values will be coerced to the most flexible type. The rank of types from most to the lease flexible is: character, double, integer, logic.
+
+```{r echo=T, collapse=TRUE}
+# create a logical vector
+vct_loc <- c(TRUE, T,  F, FALSE, T)
+print(sum(vct_loc))
+
+# create a integer vector
+vct_int <- c(3L, 2L, 9L, 5L)
+print(vct_int + 1)
+
+# create a double vector
+vct_dbl <- c(32, 6.7, 8.3, 10.1)
+print(vct_dbl * 2)
+
+# create a character vector
+vct_chr <- c("today", "tomorrow", "yesterday")
+print(which(vct_chr == "yesterday"))
+
+# determine type using typeof()
+typeof(vct_int)
+
+# check if it is a specific type use: is.character(), is.double(), 
+# is.integer(), is.logical()
+is.double(vct_dbl)
+
+# or use is.atomic()
+is.atomic(vct_loc)
+
+# find number of elements
+length(vct_loc)
+
+# Coerced to the most flexible type: character
+vct_cred <- c(TRUE, 3.8, "New")
+print(vct_cred)
+typeof(vct_cred)
+
+```
+
+Excercise
+R actually no scalar type. Try to create a singe value object such as `a <- 1` and test if it is a vector.
+
+### Attributes
+All objects can have additional attributes such as `name, class, comment, dim, dimnames, names` ect. One of the important attributes is the factor levels that defined factors. A factor is a vector that can only contain predefined categorical values.
+```{r, echo = TRUE}
+# set names attribute
+loc_na <- c("a", "b", "c", "d", "e")
+names(vct_loc) <- loc_na
+
+# add comments 
+comment(vct_loc) <- "This is a logical vector"
+
+print(vct_loc)
+attributes(vct_loc)
+
+# create a factor vector
+fct <- c("low", "high", "medium", "high", "low", "medium",
+         "high", "low")
+fct_vct <- factor(fct, order = TRUE,
+                  levels = c("low", "medium", "high"))
+levels(fct_vct)
+as.numeric(fct_vct)
+```
+Excercise:
+Why is 73 == "73" is ture? Why 2 > TRUE true?
+
+### Matrix and Array
+Array and matrix are also homogenous which means each elements in an array or matrix must haev the same mode(logic, numeric or logic). Array is multi-dimensional which matrix is two dimentional
+```{r, echo = TRUE}
+
+# Create a Three dimentional arry
+m1 <- c("A1", "A2")
+m2 <- c("B1", "B2", "B3")
+m3 <- c("C1", "C2", "C3", "C4")
+arr <- array(1:24, c(2, 3, 4), dimnames = list(m1, m2, m3))
+print(arr)
+# Matrices
+max1 <- matrix(1:6, 3, 2)
+print(max1)
+max2 <- 1:8
+dim(max2) <- c(2, 4)
+print(max2)
+# Matrix computation using %*%
+print(max1 %*% max2)
+
+```
+### Data Frame
+Data frame is the most common way to store the data for analysis in R, with each row is a record and each column is variable that can only have one type of data.
+```{r, echo = TRUE}
+df <- data.frame(x = 1:5,  y = letters[1:5],
+                 z = runif(1) > 0.5,
+                 row.names = c("row1", "row2", "row3", "row4", "row5"),
+                 stringsAsFactors = FALSE)
+print(df)
+# check if an object is a data framne using class or is.data.frame.
+class(df)
+is.data.frame(df)
+
+```
+### List
+Lists are one dimentional heterogeneous vector that can have any kind of bojects. For example, a list may contain a combination of vectors, matrix, data frames and other lists.
+```{r, echo=TRUE}
+# Create a list
+a <- "A New List"
+b <- c(1, 1, 2, 5, 14, 42)
+c <- matrix(1:10, nrow = 5)
+d <- list("one", "two", "three")
+list1 <- list(title = a, b, c, d, month.name)
+names(list1)[2] <- "Second item"
+print(list1)
+
+#lists are used to buld up other data structures such as data frames and statistical model objects.
+is.list(df)
+# Use unlist to convert a list to atomic vector.
+is.atomic(unlist(df))
+```
+# Importing and Exporting Data
+```{r, echo=TRUE}
+# Read data from text file
+dat1 <- read.table("data/dat1.txt", header = TRUE, stringsAsFactors = FALSE)
+str(dat1)
+
+# Read data from csv file
+hourly <- read.csv("data/hourly.csv", skip = 15, 
+                       stringsAsFactors = FALSE, header = TRUE)
+
+# Read data from excel file
+library(xlsx)
+dat2 <- read.xlsx("data/infor.xlsx", sheetIndex = 1)
+print(dat2)
+
+# Exporting data using write.table
+write.table(dat1, "c:/Books/mydata.txt", sep="\t") 
+
+
+```
