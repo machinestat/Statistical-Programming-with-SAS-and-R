@@ -1,0 +1,146 @@
+---
+title: 'R Training Guide: Using ARD with the {cards} Package'
+author: "Shu Guo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# 1. Introduction to ARD (Analysis Results Dataset)
+
+The **Analysis Results Dataset (ARD)** is part of the CDISC **Analysis Results Standard (ARS)** framework, which aims to standardize how statistical analysis results are structured, stored, and reused.
+
+Traditionally, clinical trial results (tables, figures, and listings) are generated as static outputs (e.g., PDFs or RTFs), which are difficult to reuse, trace, or automate. The ARS framework addresses these limitations by introducing a machine-readable, structured representation of analysis results and their metadata.   
+
+Within this framework:
+- **ARD** represents the *analysis results data itself* (e.g., summary statistics, p-values, counts)
+- **ARM (Analysis Results Metadata)** describes how those results were produced (methods, populations, variables)
+
+An ARD serves as a "single source of truth" for analysis outputs, enabling:
+
+* **Reproducibility:** Re-run calculations seamlessly across different execution environments.
+* **Traceability:** Trace results directly back to source data (e.g., ADaM datasets like `ADSL` or `ADAE`).
+* **Reusability:** Feed the same result dataset into multiple outputs (tables, figures, reports, interactive apps).
+* **Automation:** Streamline reporting workflows by decoupling statistical computation from display formatting.
+
+In practice, an ARD is typically a **tidy dataset** where each row represents a result (e.g., statistic for a group), along with sufficient context (variables, groupings, methods) to reproduce and interpret that result.
+
+The `{cards}` R package provides a convenient way to **generate ARD-like structured outputs**, making it easier to integrate ARD principles into reproducible R workflows.
+
+# 1.1 ARD Data Structure and ARM (Analysis Results Metadata)
+
+## ARD Data Structure
+
+An **Analysis Results Dataset (ARD)** is a structured, machine-readable dataset where each row represents a **single analysis result** along with the necessary context to interpret it.
+
+The ARD is typically organized in a tidy format, meaning:
+
+* **Each row:** Represents one result (e.g., a mean, count, or p-value).
+* **Each column:** Defines a specific attribute describing that result (e.g., variable, group level, statistic name).
+
+### Key Components of an ARD
+
+An ARD should generally include the following types of information:
+
+#### 1. Analysis Context
+- **Analysis variable** (e.g., `AVAL`, `PARAM`)
+- **Population** (e.g., safety, ITT)
+- **Analysis set flags** (e.g., `SAFFL`, `ITTFL`)
+- **Visit / time point** (e.g., `AVISIT`, `AVISITN`)
+
+#### 2. Grouping Variables
+- Treatment groups (e.g., `TRT01A`)
+- Subgroups (e.g., sex, age group, parameter, analysis visits)
+
+These define *how results are stratified*.
+
+#### 3. Result Type and Statistic
+- Statistic name (e.g., `MEAN`, `N`, `SD`, `P_VALUE`)
+- Unrounded Numeric result (e.g., `AVAL`, `CHG`, or similar)
+
+#### 4. Additional Metadata
+- Units (e.g., `mg/dL`)
+- Denominator (for percentages)
+- Method (e.g., t-test, ANOVA)
+
+---
+
+### Example ARD Structure 
+
+|group1   |group1_level|group2  |group2_level  |stat_name | stat_level  |variable |stat |
+|---------|-------------|---------|---------------|-----------|-------------|----------|------|
+ | TRT01A  | Placebo     | PARAM   | Weight        | MEAN      | Mean        | AVAL     | 72.3 |
+ | TRT01A  | Placebo     | PARAM   | Weight        | SD        | Std Dev     | AVAL     | 10.2 |
+ | TRT01A  | Placebo     | PARAM   | Weight        | N         | n           | AVAL     | 50   |
+ | TRT01A  | Drug A      | PARAM   | Weight        | MEAN      | Mean        | AVAL     | 78.6 |
+ | TRT01A  | Drug A      | PARAM   | Weight        | SD        | Std Dev     | AVAL     | 13.7 |
+ | TRT01A  | Drug A      | PARAM   | Weight        | N         | n           | AVAL     | 58   |
+
+
+
+Each row represents a single value on the table or figure output.
+
+```{r echo=TRUE }
+# Minimal example generating an ARD with {cards}
+cards::ard_continuous(
+  data = cards::ADSL,
+  by = TRT01A,
+  variables = AGE
+)
+
+```
+
+---
+
+## ARM (Analysis Results Metadata)
+
+The Analysis Results Metadata (ARM) complements the ARD by describing how each result was derived.
+
+While ARD contains the results, ARM contains the instructions and definitions which defines how the result ARD was created.
+
+### Key Elements of ARM
+
+ARM typically includes:
+
+- **Output related information**
+  - Information related to locations, standards, titles/footnotes.
+- **Variable meta**
+  - Describes each column in the ARD
+- **Derivation methods**
+  - This includes subsetting statements, population, p-value, Statistical methods (e.g., mean, logistic regression)
+
+
+---
+
+## Relationship Between ARD and ARM
+
+- **ARD = Results data**
+- **ARM = Metadata describing those results**
+
+They work together to ensure:
+- **Traceability** → Results can be traced back to source data and methods  
+- **Reproducibility** → Analyses can be rerun using ARM definitions  
+- **Consistency** → Same definitions reused across outputs  
+
+In a complete ARS implementation:
+- ARD stores *what was calculated*
+- ARM explains *how and why it was calculated*
+
+---
+
+## ARD in R with `{cards}`
+
+The `{cards}` package produces ARD-like datasets where:
+- Each row is a result
+- Columns describe variables, groupings, and statistics
+
+This aligns well with ARS principles and supports reproducible workflows in R.
+---
+
+# 2. Setup
+
+
+
+
+
